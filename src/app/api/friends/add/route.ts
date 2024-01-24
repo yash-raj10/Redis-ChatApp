@@ -11,6 +11,7 @@ export async function POST(req: Request) {
 
     const { email: emailToAdd } = addFriendValidator.parse(body.email);
 
+    //////------------- Cache prlm in this fn se we used redis.ts in helper-------------------------------------------
     // const RESTResponse = await fetch(
     //   `${process.env.UPSTASH_REDIS_REST_URL}/get/user:email${emailToAdd}`,
     //   {
