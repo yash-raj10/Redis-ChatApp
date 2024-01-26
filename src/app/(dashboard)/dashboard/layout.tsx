@@ -1,10 +1,11 @@
+import FriendRequestSidebarOption from "@/components/FriendRequestSidebarOption";
 import { Icon, Icons } from "@/components/Icons";
 import SignOutButton from "@/components/SignOutButton";
+import { fetchRedis } from "@/helper/redis";
 import { authOptions } from "@/lib/auth";
 import { IconNode, LucideIcon, UserPlus, Aperture } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Image from "next/image";
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FC, ReactNode } from "react";
@@ -32,6 +33,13 @@ const sidebarOptions: SidebarOption[] = [
 const layout = async ({ children }: layoutProps) => {
   const session = await getServerSession(authOptions);
   if (!session) notFound();
+
+  const unseenRequestCount = (
+    (await fetchRedis(
+      "smembers",
+      `user:${session.user.id}:incoming_friend_request`
+    )) as unknown as User[]
+  ).length;
 
   return (
     <div className="w-full flex h-screen ">
@@ -74,6 +82,14 @@ const layout = async ({ children }: layoutProps) => {
                 })}
               </ul>
             </li>
+
+            <li>
+              <FriendRequestSidebarOption
+                sessionId={session.user.id}
+                initialUnseenRequestCount={unseenRequestCount}
+              />
+            </li>
+
             <li className="-mx-6 mt-auto flex items-center ">
               <div className=" flex flex-1 items-center gap-x-4 px-6 py-3 test-sm font-semibold leading-6 text-gray-900">
                 <div className="relative h-8 w-8 bg-gray-50">
